@@ -12,8 +12,10 @@
         public int hullEventFrequencyUpper = 5;
         public int netEventFrequencyLower = 3;
         public int netEventFrequencyUpper = 8;
-        public string dayOfWeekChoice = "Wednesday";
-        public string dayOfWeekChoiceIsland = "Saturday";
-        internal static string[] murphyDayToAppear = new string[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+        public string dayOfWeekBeachStart = "Tuesday";
+        public string dayOfWeekBeachEnd = "Thursday";
+        public string dayOfWeekIslandStart = "Saturday";
+        public string dayOfWeekIslandEnd = "Sunday";
+        internal static string[] murphyDayToAppear = new string[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
     }
 }

@@ -43,6 +43,7 @@ namespace FishingTrawler
         internal static Farmer mainDeckhand;
         internal static int numberOfDeckhands;
         internal static string todayDayOfWeek;
+        internal static int gameDuration;
 
         // Managers
         internal static ApiManager apiManager;
@@ -65,6 +66,7 @@ namespace FishingTrawler
 
         // Day to appear settings
         internal const string BOAT_DEPART_EVENT_ID = "840603900";
+        
 
         public override void Entry(IModHelper helper)
         {
@@ -269,7 +271,7 @@ namespace FishingTrawler
                 _trawlerRewards.Value.Reset(Game1.player);
 
                 // Start the timer (2.5 minute default)
-                eventManager.SetTripTimer((int) (config.minigameDuration * 60f * 1000f)); //150000
+                eventManager.SetTripTimer(gameDuration); //150000
 
                 // Setup the cabin
                 _trawlerCabin.Value.Reset();
@@ -356,8 +358,16 @@ namespace FishingTrawler
                 e.Edit(asset =>
                 {
                     var data = asset.AsDictionary<string, string>().Data;
-                    data[ModDataKeys.MAIL_FLAG_MURPHY_WAS_INTRODUCED] = string.Format(FishingTrawler.i18n.Get("letter.meet_murphy"), Game1.MasterPlayer.modData.ContainsKey(ModDataKeys.MURPHY_DAY_TO_APPEAR) ? Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR] : config.dayOfWeekChoice);
-                    data[ModDataKeys.MAIL_FLAG_MURPHY_FOUND_GINGER_ISLAND] = string.Format(FishingTrawler.i18n.Get("letter.island_murphy"), Game1.MasterPlayer.modData.ContainsKey(ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND) ? Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND] : config.dayOfWeekChoiceIsland);
+                    string frontStringBeach = TrawlerHelper.IsDayARange(config.dayOfWeekBeachStart, config.dayOfWeekBeachEnd) ? "from" : "on";
+                    string endStringBeach = TrawlerHelper.IsDayARange(config.dayOfWeekBeachStart, config.dayOfWeekBeachEnd) ? "to" : "";
+                    string frontStringIsland = TrawlerHelper.IsDayARange(config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd) ? "from" : "on";
+                    string endStringIsland = TrawlerHelper.IsDayARange(config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd) ? "to" : "";
+
+                    string beachAppearance = TrawlerHelper.DayRangeString(config.dayOfWeekBeachStart, config.dayOfWeekBeachEnd, frontStringBeach, endStringBeach);
+                    string islandAppearance = TrawlerHelper.DayRangeString(config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd, frontStringIsland, endStringIsland);
+
+                    data[ModDataKeys.MAIL_FLAG_MURPHY_WAS_INTRODUCED] = string.Format(FishingTrawler.i18n.Get("letter.meet_murphy"), beachAppearance);
+                    data[ModDataKeys.MAIL_FLAG_MURPHY_FOUND_GINGER_ISLAND] = string.Format(FishingTrawler.i18n.Get("letter.island_murphy"), islandAppearance);
                 });
             }
             else if (e.NameWithoutLocale.IsEquivalentTo("Data/ChairTiles"))
@@ -511,6 +521,7 @@ namespace FishingTrawler
         {
             // Set our default config
             config = Helper.ReadConfig<ModConfig>();
+            gameDuration = (int)(config.minigameDuration * 60f * 1000f);
 
             // Hook into the APIs we utilize
             if (Helper.ModRegistry.IsLoaded("spacechase0.GenericModConfigMenu") && apiManager.HookIntoGMCM(Helper))
@@ -518,7 +529,7 @@ namespace FishingTrawler
                 // Register our config options
                 var configAPI = apiManager.GetGMCMInterface();
                 configAPI.Register(ModManifest, () => config = new ModConfig(), () => Helper.WriteConfig(config), titleScreenOnly: true);
-                configAPI.AddNumberOption(ModManifest, () => config.minigameDuration, (val) => config.minigameDuration = val, () => i18n.Get("config.option.minigame_duration.name"), () => i18n.Get("config.option.minigame_duration.description"), 2.5f, 5f, 0.25f);
+                configAPI.AddNumberOption(ModManifest, () => config.minigameDuration, (val) => config.minigameDuration = val, () => i18n.Get("config.option.minigame_duration.name"), () => i18n.Get("config.option.minigame_duration.description"), 0.5f, 5f, 0.25f);
                 configAPI.AddNumberOption(ModManifest, () => config.minimumFishingLevel, (val) => config.minimumFishingLevel = val, () => i18n.Get("config.option.required_fishing_level.name"), () => i18n.Get("config.option.required_fishing_level.description"), 0, 10);
                 configAPI.AddBoolOption(ModManifest, () => config.disableScreenFade, (val) => config.disableScreenFade = val, () => i18n.Get("config.option.disable_screen_fade.name"), () => i18n.Get("config.option.disable_screen_fade.description"));
                 configAPI.AddBoolOption(ModManifest, () => config.useOldTrawlerSprite, (val) => config.useOldTrawlerSprite = val, () => i18n.Get("config.option.use_old_trawler_sprite.name"), () => i18n.Get("config.option.use_old_trawler_sprite.description")); ;
@@ -528,10 +539,26 @@ namespace FishingTrawler
                 configAPI.AddNumberOption(ModManifest, () => config.hullEventFrequencyLower, (val) => config.hullEventFrequencyLower = val, () => i18n.Get("config.option.hull.event_frequency_lower.name"), () => i18n.Get("config.option.hull.event_frequency_lower.description"), 1, 15);
                 configAPI.AddNumberOption(ModManifest, () => config.netEventFrequencyUpper, (val) => config.netEventFrequencyUpper = val, () => i18n.Get("config.option.net.event_frequency_upper.name"), () => i18n.Get("config.option.net.event_frequency_upper.description"), 1, 15);
                 configAPI.AddNumberOption(ModManifest, () => config.netEventFrequencyLower, (val) => config.netEventFrequencyLower = val, () => i18n.Get("config.option.net.event_frequency_lower.name"), () => i18n.Get("config.option.net.event_frequency_lower.description"), 1, 15);
-                configAPI.AddTextOption(ModManifest, () => config.dayOfWeekChoice, (val) => config.dayOfWeekChoice = val, () => i18n.Get("config.option.murphy_appearance_day.name"), () => i18n.Get("config.option.murphy_appearance_day.description"), ModConfig.murphyDayToAppear);
-                configAPI.AddTextOption(ModManifest, () => config.dayOfWeekChoiceIsland, (val) => config.dayOfWeekChoiceIsland = val, () => i18n.Get("config.option.murphy_appearance_day_island.name"), () => i18n.Get("config.option.murphy_appearance_day_island.description"), ModConfig.murphyDayToAppear);
+                configAPI.AddTextOption(ModManifest, () => config.dayOfWeekBeachStart, (val) => config.dayOfWeekBeachStart = val, () => i18n.Get("config.option.murphy_appearance_day_beach_start.name"), () => i18n.Get("config.option.murphy_appearance_day_beach_start.description"), ModConfig.murphyDayToAppear);
+                configAPI.AddTextOption(ModManifest, () => config.dayOfWeekBeachEnd, (val) => config.dayOfWeekBeachEnd = val, () => i18n.Get("config.option.murphy_appearance_day_beach_end.name"), () => i18n.Get("config.option.murphy_appearance_day_beach_end.description"), ModConfig.murphyDayToAppear);
+                configAPI.AddTextOption(ModManifest, () => config.dayOfWeekIslandStart, (val) => config.dayOfWeekIslandStart = val, () => i18n.Get("config.option.murphy_appearance_day_island_start.name"), () => i18n.Get("config.option.murphy_appearance_day_island_start.description"), ModConfig.murphyDayToAppear);
+                configAPI.AddTextOption(ModManifest, () => config.dayOfWeekIslandEnd, (val) => config.dayOfWeekIslandEnd = val, () => i18n.Get("config.option.murphy_appearance_day_island_end.name"), () => i18n.Get("config.option.murphy_appearance_day_island_end.description"), ModConfig.murphyDayToAppear);
 
-                Monitor.Log($"{Game1.player.Name} has following config options -> [Min Fish Level]: {config.minimumFishingLevel} | [Fishing Net Output]: {config.fishPerNet} | [Engine Boost]: {config.engineFishBonus} | [Hull Event Freq Lower]: {config.hullEventFrequencyLower} | [Hull Event Freq Upper]: {config.hullEventFrequencyUpper} | [Net Event Freq Lower]: {config.netEventFrequencyLower} | [Net Event Freq Upper]: {config.netEventFrequencyUpper} | [Day for Murphy]: {config.dayOfWeekChoice}", LogLevel.Trace);
+                // Trace strings to see configs
+                string minigameDurationTrace = $"[Minigame Duration]: {config.minigameDuration}";
+                string minimumFishingLevelTrace = $"[Min Fish Level]: {config.minimumFishingLevel}";
+                string fishPerNetTrace = $"[Fishing Net Output]: {config.fishPerNet}";
+                string engineFishBonusTrace = $"[Engine Boost]: {config.engineFishBonus}";
+                string hullEventFrequencyLowerTrace = $"[Hull Event Freq Lower]: {config.hullEventFrequencyLower}";
+                string hullEventFrequencyUpperTrace = $"[Hull Event Freq Upper]: {config.hullEventFrequencyUpper}";
+                string netEventFrequencyLowerTrace = $"[Net Event Freq Lower]: {config.netEventFrequencyLower}";
+                string netEventFrequencyUpperTrace = $"[Net Event Freq Upper]: {config.netEventFrequencyUpper}";
+                string dayOfWeekBeachStartTrace = $"[Start Murphy (B)]: {config.dayOfWeekBeachStart}";
+                string dayOfWeekBeachEndTrace = $"[End Murphy (B)]: {config.dayOfWeekBeachEnd}";
+                string dayOfWeekIslandStartTrace = $"[Start Murphy (I)]: {config.dayOfWeekIslandStart}";
+                string dayOfWeekIslandEndTrace = $"[Start Murphy (I)]: {config.dayOfWeekIslandEnd}";
+
+                Monitor.Log($"{Game1.player.Name} has following config options -> {minigameDurationTrace} | {minimumFishingLevelTrace} | {fishPerNetTrace} | {engineFishBonusTrace} | {hullEventFrequencyLowerTrace} | {hullEventFrequencyUpperTrace} | {netEventFrequencyLowerTrace} | {netEventFrequencyUpperTrace} | {dayOfWeekBeachStartTrace} | {dayOfWeekBeachEndTrace} | {dayOfWeekIslandStartTrace} | {dayOfWeekIslandEndTrace}", LogLevel.Trace);
             }
 
             if (Helper.ModRegistry.IsLoaded("Pathoschild.ContentPatcher") && apiManager.HookIntoContentPatcher(Helper))
@@ -539,11 +566,13 @@ namespace FishingTrawler
                 var patcherAPI = apiManager.GetContentPatcherInterface();
                 patcherAPI.RegisterToken(ModManifest, "MurphyAppearanceDay", () =>
                 {
-                    return new[] { Game1.MasterPlayer.modData.ContainsKey(ModDataKeys.MURPHY_DAY_TO_APPEAR) ? Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR] : config.dayOfWeekChoice };
+                    return [TrawlerHelper.RangeOfDayString(config.dayOfWeekBeachStart, config.dayOfWeekBeachEnd)];
+                    //return new[] { Game1.MasterPlayer.modData.ContainsKey(ModDataKeys.MURPHY_DAY_TO_APPEAR) ? Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR] : config.dayOfWeekChoice };
                 });
                 patcherAPI.RegisterToken(ModManifest, "MurphyAppearanceDayIsland", () =>
                 {
-                    return new[] { Game1.MasterPlayer.modData.ContainsKey(ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND) ? Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND] : config.dayOfWeekChoiceIsland };
+                    return [TrawlerHelper.RangeOfDayString(config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd)];
+                    //return new[] { Game1.MasterPlayer.modData.ContainsKey(ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND) ? Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND] : config.dayOfWeekChoiceIsland };
                 });
             }
 
@@ -581,7 +610,8 @@ namespace FishingTrawler
             if (Context.IsMainPlayer)
             {
                 // Must be a user set date (default Wednesday), the player's fishing level >= 3 and the bridge must be fixed on the beach
-                if (!Game1.MasterPlayer.mailReceived.Contains(ModDataKeys.MAIL_FLAG_MURPHY_WAS_INTRODUCED) && Game1.MasterPlayer.FishingLevel >= config.minimumFishingLevel && beach.bridgeFixed.Value && todayDayOfWeek == Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR])
+                bool beachCondition = !Game1.MasterPlayer.mailReceived.Contains(ModDataKeys.MAIL_FLAG_MURPHY_WAS_INTRODUCED) && Game1.MasterPlayer.FishingLevel >= config.minimumFishingLevel && beach.bridgeFixed.Value && TrawlerHelper.IsTodayInRangeOfDay(todayDayOfWeek, Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_START], Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_END]);
+                if (beachCondition)
                 {
                     Monitor.Log($"Sending {Game1.MasterPlayer.Name} intro letter about Murphy!", LogLevel.Trace);
                     Game1.MasterPlayer.mailbox.Add(ModDataKeys.MAIL_FLAG_MURPHY_WAS_INTRODUCED);
@@ -589,7 +619,8 @@ namespace FishingTrawler
 
                 // Must be a user set island date (default Satuday), met Murphy and Ginger Island's resort must be built
                 IslandSouth resort = Game1.getLocationFromName("IslandSouth") as IslandSouth;
-                if (!Game1.MasterPlayer.mailReceived.Contains(ModDataKeys.MAIL_FLAG_MURPHY_FOUND_GINGER_ISLAND) && Game1.MasterPlayer.mailReceived.Contains(ModDataKeys.MAIL_FLAG_MURPHY_WAS_INTRODUCED) && resort.resortRestored.Value && todayDayOfWeek == Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND])
+                bool islandCondition = !Game1.MasterPlayer.mailReceived.Contains(ModDataKeys.MAIL_FLAG_MURPHY_FOUND_GINGER_ISLAND) && Game1.MasterPlayer.mailReceived.Contains(ModDataKeys.MAIL_FLAG_MURPHY_WAS_INTRODUCED) && resort.resortRestored.Value && TrawlerHelper.IsTodayInRangeOfDay(todayDayOfWeek, Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START], Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END]);
+                if (islandCondition)
                 {
                     Monitor.Log($"Sending {Game1.MasterPlayer.Name} Ginger Island letter about Murphy!", LogLevel.Trace);
                     Game1.MasterPlayer.mailbox.Add(ModDataKeys.MAIL_FLAG_MURPHY_FOUND_GINGER_ISLAND);
@@ -614,7 +645,8 @@ namespace FishingTrawler
             }
 
             // Create the trawler object for the beach
-            if (todayDayOfWeek == Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND])
+            // todayDayOfWeek == Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND]
+            if (TrawlerHelper.IsTodayInRangeOfDay(todayDayOfWeek, config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd))
             {
                 trawlerObject = new Trawler(island);
             }
@@ -717,7 +749,7 @@ namespace FishingTrawler
         {
             if (Game1.MasterPlayer.mailReceived.Contains(ModDataKeys.MAIL_FLAG_MURPHY_WAS_INTRODUCED))
             {
-                if (location is Beach && !Game1.isStartingToGetDarkOut(location) && todayDayOfWeek == Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR] && (!location.modData.ContainsKey(ModDataKeys.MURPHY_ON_TRIP) || location.modData[ModDataKeys.MURPHY_ON_TRIP] == "false"))
+                if (location is Beach && !Game1.isStartingToGetDarkOut(location) && TrawlerHelper.IsTodayInRangeOfDay(todayDayOfWeek, Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_START], Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_END]) && (!location.modData.ContainsKey(ModDataKeys.MURPHY_ON_TRIP) || location.modData[ModDataKeys.MURPHY_ON_TRIP] == "false"))
                 {
                     return true;
                 }
@@ -725,7 +757,7 @@ namespace FishingTrawler
 
             if (Game1.MasterPlayer.mailReceived.Contains(ModDataKeys.MAIL_FLAG_MURPHY_FOUND_GINGER_ISLAND))
             {
-                if (location is IslandSouthEast && !Game1.isStartingToGetDarkOut(location) && todayDayOfWeek == Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND] && (!location.modData.ContainsKey(ModDataKeys.MURPHY_ON_TRIP) || location.modData[ModDataKeys.MURPHY_ON_TRIP] == "false"))
+                if (location is IslandSouthEast && !Game1.isStartingToGetDarkOut(location) && TrawlerHelper.IsTodayInRangeOfDay(todayDayOfWeek, Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START], Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END]) && (!location.modData.ContainsKey(ModDataKeys.MURPHY_ON_TRIP) || location.modData[ModDataKeys.MURPHY_ON_TRIP] == "false"))
                 {
                     return true;
                 }
@@ -781,20 +813,40 @@ namespace FishingTrawler
             }
 
             Game1.player.modData[ModDataKeys.MURPHY_WAS_GREETED_TODAY_KEY] = "false";
-            Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR] = config.dayOfWeekChoice;
+            Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_START] = config.dayOfWeekBeachStart;
+            Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_END] = config.dayOfWeekBeachEnd;
 
-            Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND] = config.dayOfWeekChoiceIsland;
-            if (config.dayOfWeekChoice == config.dayOfWeekChoiceIsland)
+            Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START] = config.dayOfWeekIslandStart;
+            Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END] = config.dayOfWeekIslandEnd;
+
+            // Conditions to check for
+            bool isBeachARange = TrawlerHelper.IsDayARange(config.dayOfWeekBeachStart, config.dayOfWeekBeachEnd);
+            bool isIslandARange = TrawlerHelper.IsDayARange(config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd);
+            bool isSameStartDay = config.dayOfWeekBeachStart == config.dayOfWeekIslandStart;
+            bool isSameEndDay = config.dayOfWeekBeachEnd == config.dayOfWeekIslandEnd;
+            bool isDayNextTo = TrawlerHelper.IsDayNextTo(config.dayOfWeekBeachEnd, config.dayOfWeekIslandStart);
+            bool isRangePossible = TrawlerHelper.IsRangePossible(config.dayOfWeekBeachStart, config.dayOfWeekBeachEnd, config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd);
+
+            if (!isRangePossible)
             {
-                // Prevent Murphy from showing up on the beach and island on same day by offsetting it by 1 (or setting it the first index)
-                int currentIndex = Array.IndexOf(ModConfig.murphyDayToAppear, config.dayOfWeekChoiceIsland) + 1;
-                if (currentIndex > ModConfig.murphyDayToAppear.Length - 1)
-                {
-                    currentIndex = 0;
-                }
+                int startBeachIndex = TrawlerHelper.DayToIndex(config.dayOfWeekBeachStart);
+                int endBeachIndex = (TrawlerHelper.DayToIndex(config.dayOfWeekBeachEnd) + 2) % ModConfig.murphyDayToAppear.Length;
+                int startIslandIndex = (endBeachIndex + 2) % ModConfig.murphyDayToAppear.Length;
+                int endIslandIndex = (endBeachIndex + 1) % ModConfig.murphyDayToAppear.Length;
 
-                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND] = ModConfig.murphyDayToAppear[currentIndex];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_START] = ModConfig.murphyDayToAppear[startBeachIndex];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_END] = ModConfig.murphyDayToAppear[endBeachIndex];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START] = ModConfig.murphyDayToAppear[startIslandIndex];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END] = ModConfig.murphyDayToAppear[endIslandIndex];
             }
+
+            // Same-day appearance are NOT allowed, Murphy can only be at one location per day
+            OverlapAdjustments(isBeachARange, isIslandARange, isSameStartDay, isSameEndDay);
+            // Logic to ensure always a day in-between visits for Murphy to appear again
+            NextToAdjustments(isBeachARange, isIslandARange, isDayNextTo);
+
+            bool isTodayInRangeBeach = TrawlerHelper.IsTodayInRangeOfDay(todayDayOfWeek, Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_START], Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_BEACH_END]);
+            bool isTodayInRangeIsland = TrawlerHelper.IsTodayInRangeOfDay(todayDayOfWeek, Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START], Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END]);
 
             if (!Game1.player.modData.ContainsKey(ModDataKeys.MURPHY_SAILED_TODAY_KEY))
             {
@@ -802,7 +854,7 @@ namespace FishingTrawler
                 Game1.player.modData.Add(ModDataKeys.MURPHY_WAS_TRIP_SUCCESSFUL_KEY, "false");
                 Game1.player.modData.Add(ModDataKeys.MURPHY_FINISHED_TALKING_KEY, "false");
             }
-            else if (todayDayOfWeek == Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR] || todayDayOfWeek == Game1.MasterPlayer.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND]) // This is intended, as we want MasterPlayer to determine Murphy appearance
+            else if (isTodayInRangeBeach || isTodayInRangeIsland) // This is intended, as we want MasterPlayer to determine Murphy appearance
             {
                 Game1.player.modData[ModDataKeys.MURPHY_SAILED_TODAY_KEY] = "false";
                 Game1.player.modData[ModDataKeys.MURPHY_WAS_TRIP_SUCCESSFUL_KEY] = "false";
@@ -818,6 +870,60 @@ namespace FishingTrawler
             if (!Game1.player.modData.ContainsKey(ModDataKeys.MURPHY_TRIPS_COMPLETED))
             {
                 Game1.player.modData[ModDataKeys.MURPHY_TRIPS_COMPLETED] = "0";
+            }
+        }
+
+        private void OverlapAdjustments(bool isBeachARange, bool isIslandARange, bool isSameStartDay, bool isSameEndDay)
+        {
+            if ((!isBeachARange && !isIslandARange && isSameStartDay) || (isBeachARange && !isIslandARange && isSameStartDay))
+            {
+                int nextIndex = (TrawlerHelper.DayToIndex(config.dayOfWeekBeachEnd) + 2) % ModConfig.murphyDayToAppear.Length;
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START] = ModConfig.murphyDayToAppear[nextIndex];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END] = ModConfig.murphyDayToAppear[nextIndex];
+            }
+
+            if (!isBeachARange && isIslandARange && isSameStartDay)
+            {
+                int nextIndexStart = (TrawlerHelper.DayToIndex(config.dayOfWeekIslandStart) + 2) % ModConfig.murphyDayToAppear.Length;
+                int nextIndexEnd = (TrawlerHelper.DayToIndex(config.dayOfWeekIslandEnd) + 2) % ModConfig.murphyDayToAppear.Length;
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START] = ModConfig.murphyDayToAppear[nextIndexStart];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END] = ModConfig.murphyDayToAppear[nextIndexEnd];
+            }
+
+            if (isBeachARange && isIslandARange && (isSameStartDay || isSameEndDay))
+            {
+                int offset = TrawlerHelper.RangeOfDayLength(config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd) + 2;
+                int nextIndexStart = (TrawlerHelper.DayToIndex(config.dayOfWeekIslandStart) + offset) % ModConfig.murphyDayToAppear.Length;
+                int nextIndexEnd = (TrawlerHelper.DayToIndex(config.dayOfWeekIslandEnd) + offset) % ModConfig.murphyDayToAppear.Length;
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START] = ModConfig.murphyDayToAppear[nextIndexStart];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END] = ModConfig.murphyDayToAppear[nextIndexEnd];
+            }
+        }
+
+        private void NextToAdjustments(bool isBeachARange, bool isIslandARange, bool isDayNextTo)
+        {
+            if ((!isBeachARange && !isIslandARange && isDayNextTo) || (isBeachARange && !isIslandARange && isDayNextTo))
+            {
+                int nextIndex = (TrawlerHelper.DayToIndex(config.dayOfWeekBeachEnd) + 1) % ModConfig.murphyDayToAppear.Length;
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START] = ModConfig.murphyDayToAppear[nextIndex];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END] = ModConfig.murphyDayToAppear[nextIndex];
+            }
+
+            if (!isBeachARange && isIslandARange && isDayNextTo)
+            {
+                int nextIndexStart = (TrawlerHelper.DayToIndex(config.dayOfWeekIslandStart) + 1) % ModConfig.murphyDayToAppear.Length;
+                int nextIndexEnd = (TrawlerHelper.DayToIndex(config.dayOfWeekIslandEnd) + 1) % ModConfig.murphyDayToAppear.Length;
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START] = ModConfig.murphyDayToAppear[nextIndexStart];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END] = ModConfig.murphyDayToAppear[nextIndexEnd];
+            }
+
+            if (isBeachARange && isIslandARange && isDayNextTo)
+            {
+                int offset = TrawlerHelper.RangeOfDayLength(config.dayOfWeekIslandStart, config.dayOfWeekIslandEnd) + 1;
+                int nextIndexStart = (TrawlerHelper.DayToIndex(config.dayOfWeekIslandStart) + offset) % ModConfig.murphyDayToAppear.Length;
+                int nextIndexEnd = (TrawlerHelper.DayToIndex(config.dayOfWeekIslandEnd) + offset) % ModConfig.murphyDayToAppear.Length;
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_START] = ModConfig.murphyDayToAppear[nextIndexStart];
+                Game1.player.modData[ModDataKeys.MURPHY_DAY_TO_APPEAR_ISLAND_END] = ModConfig.murphyDayToAppear[nextIndexEnd];
             }
         }
 
@@ -877,7 +983,7 @@ namespace FishingTrawler
         {
             // Give the player(s) their rewards, if they left the trawler as expected (warping out early does not give any rewards)
             Monitor.Log($"Trip is ending for {GetFarmersOnTrawler().Count()} deckhands...", LogLevel.Trace);
-            _trawlerRewards.Value.CalculateAndPopulateReward(_trawlerSurface.Value.fishCaughtQuantity);
+            _trawlerRewards.Value.CalculateAndPopulateReward(_trawlerSurface.Value.fishCaughtQuantity); //error here with the input String
 
             if (trawlerObject.location is IslandSouthEast)
             {

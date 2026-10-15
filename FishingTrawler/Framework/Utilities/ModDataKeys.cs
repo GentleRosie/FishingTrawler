@@ -13,8 +13,10 @@
         internal const string MURPHY_FINISHED_TALKING_KEY = "PeacefulEnd.FishingTrawler_MurphyFinishedTalking";
         internal const string MURPHY_HAS_SEEN_FLAG_KEY = "PeacefulEnd.FishingTrawler_MurphyHasSeenFlag";
         internal const string MURPHY_ON_TRIP = "PeacefulEnd.FishingTrawler_MurphyOnTrip";
-        internal const string MURPHY_DAY_TO_APPEAR = "PeacefulEnd.FishingTrawler_MurphyDayToAppear";
-        internal const string MURPHY_DAY_TO_APPEAR_ISLAND = "PeacefulEnd.FishingTrawler_MurphyDayToAppearIsland";
+        internal const string MURPHY_DAY_TO_APPEAR_BEACH_START = "PeacefulEnd.FishingTrawler_MurphyDayToAppearBeachStart";
+        internal const string MURPHY_DAY_TO_APPEAR_BEACH_END = "PeacefulEnd.FishingTrawler_MurphyDayToAppearBeachEnd";
+        internal const string MURPHY_DAY_TO_APPEAR_ISLAND_START = "PeacefulEnd.FishingTrawler_MurphyDayToAppearIslandStart";
+        internal const string MURPHY_DAY_TO_APPEAR_ISLAND_END = "PeacefulEnd.FishingTrawler_MurphyDayToAppearIslandEnd";
         internal const string MURPHY_TRIPS_COMPLETED = "PeacefulEnd.FishingTrawler_MurphyTripsCompleted";
 
         // Item related

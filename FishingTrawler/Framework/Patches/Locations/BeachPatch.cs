@@ -16,7 +16,6 @@ namespace FishingTrawler.Patches.Locations
 {
     internal class BeachPatch : PatchTemplate
     {
-        internal ModConfig config = new();
         private readonly Type _beach = typeof(Beach);
 
         internal BeachPatch(IMonitor modMonitor, IModHelper modHelper) : base(modMonitor, modHelper)

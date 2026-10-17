@@ -1,5 +1,7 @@
 {
   // Config settings
+  "config.option.allow_multiple_trips.name": "Enables Multiple Trips",
+  "config.option.allow_multiple_trips.description": "Must have a range of days to work. Allows Murphy to offer a trip each day at either locations.",
   "config.option.minigame_duration.name": "Duration of Minigame",
   "config.option.minigame_duration.description": "Sets the duration of the minigame in minutes.",
   "config.option.required_fishing_level.name": "Minimum Fishing Level Required",

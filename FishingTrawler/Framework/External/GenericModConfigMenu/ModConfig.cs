@@ -2,6 +2,7 @@
 {
     public class ModConfig
     {
+        public bool allowMultipleTrips = false;
         public float minigameDuration = 2.5f;
         public int minimumFishingLevel = 3;
         public bool disableScreenFade = false;

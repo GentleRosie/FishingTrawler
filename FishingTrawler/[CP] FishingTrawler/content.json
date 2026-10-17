@@ -1,12 +1,19 @@
 {
   "Format": "1.28.4",
+  "ConfigSchema": {
+    "Starblue": {
+      "AllowValues": "true, false",
+      "default": "false",
+      "section": "Appearance"
+    }
+  },
   "Changes": [
     {
       "Action": "Load",
       "Target": "PeacefulEnd/FishingTrawler/Framework/Assets/TrawlerCabin",
       "FromFile": "assets/TrawlerCabin.png",
       "When": {
-        "Query: false": true // Remove or change the "When" block to enable this patch
+        "Query: false": true
       }
     },
     {
@@ -14,7 +21,7 @@
       "Target": "PeacefulEnd/FishingTrawler/Framework/Assets/TrawlerHull",
       "FromFile": "assets/TrawlerHull.png",
       "When": {
-        "Query: false": true // Remove or change the "When" block to enable this patch
+        "Query: false": true
       }
     },
     {
@@ -22,7 +29,7 @@
       "Target": "PeacefulEnd/FishingTrawler/Framework/Assets/SurfaceTiles",
       "FromFile": "assets/SurfaceTiles.png",
       "When": {
-        "Query: false": true // Remove or change the "When" block to enable this patch
+        "Query: false": true
       }
     },
     {
@@ -30,7 +37,7 @@
       "Target": "PeacefulEnd/FishingTrawler/Framework/Assets/TrawlerTiles",
       "FromFile": "assets/TrawlerTiles.png",
       "When": {
-        "Query: false": true // Remove or change the "When" block to enable this patch
+        "Query: false": true
       }
     },
     {
@@ -38,7 +45,7 @@
       "Target": "PeacefulEnd/FishingTrawler/Framework/Assets/Trident",
       "FromFile": "assets/Trident.png",
       "When": {
-        "Query: false": true // Remove or change the "When" block to enable this patch
+        "Query: false": true
       }
     },
     {
@@ -46,7 +53,7 @@
       "Target": "PeacefulEnd/FishingTrawler/Framework/Assets/Murphy",
       "FromFile": "assets/Murphy.png",
       "When": {
-        "Query: false": true // Remove or change the "When" block to enable this patch
+        "Query: false": true
       }
     },
     {
@@ -66,7 +73,8 @@
         "Height": 7
       },
       "When": {
-        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDay}}": "true"
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDay}}": "true",
+        "Starblue": "false"
       }
     },
     {
@@ -86,7 +94,8 @@
         "Height": 7
       },
       "When": {
-        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDay}}": "false"
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDay}}": "false",
+        "Starblue": "false"
       }
     },
     {
@@ -107,7 +116,8 @@
         "Height": 16
       },
       "When": {
-        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true"
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true",
+        "Starblue": "false"
       }
     },
     {
@@ -128,7 +138,8 @@
         "Height": 10
       },
       "When": {
-        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true"
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true",
+        "Starblue": "false"
       }
     },
     {
@@ -149,7 +160,8 @@
         "Height": 3
       },
       "When": {
-        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true"
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true",
+        "Starblue": "false"
       }
     },
     {
@@ -170,7 +182,8 @@
         "Height": 16
       },
       "When": {
-        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false"
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false",
+        "Starblue": "false"
       }
     },
     {
@@ -191,7 +204,8 @@
         "Height": 10
       },
       "When": {
-        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false"
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false",
+        "Starblue": "false"
       }
     },
     {
@@ -212,7 +226,182 @@
         "Height": 3
       },
       "When": {
-        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false"
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false",
+        "Starblue": "false"
+      }
+    },
+    {
+      "Action": "EditMap",
+      "Target": "Maps/Beach",
+      "FromFile": "assets/BlueBeachPatchMurphy.tmx",
+      "FromArea": {
+        "X": 3,
+        "Y": 19,
+        "Width": 8,
+        "Height": 7
+      },
+      "ToArea": {
+        "X": 82,
+        "Y": 37,
+        "Width": 8,
+        "Height": 7
+      },
+      "When": {
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDay}}": "true",
+        "Starblue": "true"
+      }
+    },
+    {
+      "Action": "EditMap",
+      "Target": "Maps/Beach",
+      "FromFile": "assets/BlueBeachPatchEmpty.tmx",
+      "FromArea": {
+        "X": 3,
+        "Y": 19,
+        "Width": 8,
+        "Height": 7
+      },
+      "ToArea": {
+        "X": 82,
+        "Y": 37,
+        "Width": 8,
+        "Height": 7
+      },
+      "When": {
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDay}}": "false",
+        "Starblue": "true"
+      }
+    },
+    {
+      "Action": "EditMap",
+      "Target": "Maps/Island_SE",
+      "PatchMode": "Overlay",
+      "FromFile": "assets/BlueIslandBeachPatchMurphy.tmx",
+      "FromArea": {
+        "X": 0,
+        "Y": 0,
+        "Width": 11,
+        "Height": 16
+      },
+      "ToArea": {
+        "X": 4,
+        "Y": 29,
+        "Width": 11,
+        "Height": 16
+      },
+      "When": {
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true",
+        "Starblue": "true"
+      }
+    },
+    {
+      "Action": "EditMap",
+      "Target": "Maps/Island_SE",
+      "PatchMode": "Replace",
+      "FromFile": "assets/BlueIslandBeachPatchMurphy.tmx",
+      "FromArea": {
+        "X": 5,
+        "Y": 0,
+        "Width": 3,
+        "Height": 10
+      },
+      "ToArea": {
+        "X": 9,
+        "Y": 29,
+        "Width": 3,
+        "Height": 10
+      },
+      "When": {
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true",
+        "Starblue": "true"
+      }
+    },
+    {
+      "Action": "EditMap",
+      "Target": "Maps/Island_SE",
+      "PatchMode": "Replace",
+      "FromFile": "assets/BlueIslandBeachPatchMurphy.tmx",
+      "FromArea": {
+        "X": 1,
+        "Y": 10,
+        "Width": 9,
+        "Height": 3
+      },
+      "ToArea": {
+        "X": 5,
+        "Y": 39,
+        "Width": 9,
+        "Height": 3
+      },
+      "When": {
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "true",
+        "Starblue": "true"
+      }
+    },
+    {
+      "Action": "EditMap",
+      "Target": "Maps/Island_SE",
+      "PatchMode": "Overlay",
+      "FromFile": "assets/BlueIslandBeachPatchEmpty.tmx",
+      "FromArea": {
+        "X": 0,
+        "Y": 0,
+        "Width": 11,
+        "Height": 16
+      },
+      "ToArea": {
+        "X": 4,
+        "Y": 29,
+        "Width": 11,
+        "Height": 16
+      },
+      "When": {
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false",
+        "Starblue": "true"
+      }
+    },
+    {
+      "Action": "EditMap",
+      "Target": "Maps/Island_SE",
+      "PatchMode": "Replace",
+      "FromFile": "assets/BlueIslandBeachPatchEmpty.tmx",
+      "FromArea": {
+        "X": 5,
+        "Y": 0,
+        "Width": 3,
+        "Height": 10
+      },
+      "ToArea": {
+        "X": 9,
+        "Y": 29,
+        "Width": 3,
+        "Height": 10
+      },
+      "When": {
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false",
+        "Starblue": "true"
+      }
+    },
+    {
+      "Action": "EditMap",
+      "Target": "Maps/Island_SE",
+      "PatchMode": "Replace",
+      "FromFile": "assets/BlueIslandBeachPatchEmpty.tmx",
+      "FromArea": {
+        "X": 1,
+        "Y": 10,
+        "Width": 9,
+        "Height": 3
+      },
+      "ToArea": {
+        "X": 5,
+        "Y": 39,
+        "Width": 9,
+        "Height": 3
+      },
+      "When": {
+        "DayOfWeek |contains={{PeacefulEnd.FishingTrawler.NewHorizons/MurphyAppearanceDayIsland}}": "false",
+        "Starblue": "true"
       }
     }
   ]

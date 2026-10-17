@@ -40,11 +40,11 @@ namespace FishingTrawler.Framework.Utilities
 
         internal static string RangeOfDayString(string startDay, string endDay)
         {
-            string str = string.Empty;
             int startIndex = DayToIndex(startDay);
             int endIndex = DayToIndex(endDay);
+            string str = string.Empty;
 
-            for (int i = startIndex; i <= endIndex; i++)
+            for (int i = startIndex; i != (endIndex + 1) % 7; i = (i + 1) % 7)
             {
                 str += $"{ModConfig.murphyDayToAppear[i]}, ";
             }
@@ -78,25 +78,31 @@ namespace FishingTrawler.Framework.Utilities
                 case "Sunday":
                     index = 6;
                     break;
-            }
-            ;
+            };
             return index;
         }
-
+        
         internal static int RangeOfDayLength(string startDay, string endDay)
         {
             int start = DayToIndex(startDay);
             int end = DayToIndex(endDay);
-
-            if (start < end)
-                return (end - start) + 1;
-
             int length = 0;
-            for (int i = start; i == end; i = (i + 1) % 7)
+
+            for (int i = start; i != (end + 1) % 7; i = (i + 1) % 7)
             {
                 length++;
             }
             return length;
+        }
+        
+        // Only used when startDay > endDay
+        internal static int NextRangeOfDayLength(string startDay, string endDay)
+        {
+            int start = DayToIndex(startDay);
+            int end = DayToIndex(endDay);
+            int difference = start - end;
+
+            return 7 - difference;
         }
 
         internal static bool IsRangePossible(string startDayBeach, string endDayBeach, string startDayIsland, string endDayIsland)

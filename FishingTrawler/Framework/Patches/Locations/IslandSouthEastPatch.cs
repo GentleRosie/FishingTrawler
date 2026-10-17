@@ -17,7 +17,6 @@ namespace FishingTrawler.Patches.Locations
 {
     internal class IslandSouthEastPatch : PatchTemplate
     {
-        internal static ModConfig config;
         private readonly Type _islandSouthEast = typeof(IslandSouthEast);
 
         internal IslandSouthEastPatch(IMonitor modMonitor, IModHelper modHelper) : base(modMonitor, modHelper)

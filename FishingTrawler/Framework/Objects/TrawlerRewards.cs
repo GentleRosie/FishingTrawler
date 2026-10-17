@@ -50,10 +50,7 @@ namespace FishingTrawler.Objects
 
         public void ClearRewardChest()
         {
-            if (_rewardChest is not null)
-            {
-                _rewardChest.Items.Clear();
-            }
+            _rewardChest?.Items.Clear();
         }
 
         private string[] GetEligibleFishIds(bool allowCatchingOfNonOceanFish = false)
